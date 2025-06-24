@@ -1,54 +1,75 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import '../mock_server/hive_boxes.dart';
-import 'signin_screen.dart';
+import 'package:provider/provider.dart';
+import '../providers/story_provider.dart';
+import '../providers/post_provider.dart';
+import '../providers/comment_provider.dart';
+import '../widgets/story_list.dart';
+import '../widgets/post_input.dart';
+import '../widgets/post_card.dart';
 
-class FeedScreen extends StatelessWidget {
+class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
 
-  Future<void> _logout(BuildContext context) async {
-    final sessionBox = await Hive.openBox(HiveBoxes.sessionBox);
-    await sessionBox.delete('email'); // clear session
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => SignInScreen()),
-    );
-  }
+  @override
+  State<FeedScreen> createState() => _FeedScreenState();
+}
 
+class _FeedScreenState extends State<FeedScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Meetmax Feed'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Logout',
-            onPressed: () => _logout(context),
-          )
-        ],
-      ),
-      body: const Center(
-        child: Padding(
-          padding: EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.feed, size: 100, color: Colors.blueAccent),
-              SizedBox(height: 20),
-              Text(
-                'Welcome to your Feed!',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 12),
-              Text(
-                'This is where you will see posts, stories, and updates.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.black54),
-              ),
-            ],
+    final storyProv = Provider.of<StoryProvider>(context);
+    final postProv = Provider.of<PostProvider>(context);
+
+    Widget feedContent = CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child:
+          storyProv.stories.isEmpty ? const SizedBox.shrink() : const StoryList(),
+        ),
+        SliverToBoxAdapter(
+          child: const PostInput(),
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+                (context, index) {
+              if (index >= postProv.posts.length) return null;
+              final post = postProv.posts[index];
+              final postKey = post.key as int;
+              return PostCard(post: post, postKey: postKey);
+            },
+            childCount: postProv.posts.length,
           ),
         ),
+        SliverToBoxAdapter(
+          child: SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+        ),
+      ],
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Feed'),
+        centerTitle: false,
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await Provider.of<StoryProvider>(context, listen: false).reload();
+          await Provider.of<PostProvider>(context, listen: false).reload();
+          await Provider.of<CommentProvider>(context, listen: false).reload();
+        },
+        child: LayoutBuilder(builder: (context, constraints) {
+          const maxWidth = 600.0;
+          if (constraints.maxWidth > maxWidth) {
+            return Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxWidth),
+                child: feedContent,
+              ),
+            );
+          } else {
+            return feedContent;
+          }
+        }),
       ),
     );
   }

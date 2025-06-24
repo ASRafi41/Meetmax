@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+
 part 'post.g.dart';
 
 @HiveType(typeId: 1)
@@ -18,11 +19,19 @@ class Post extends HiveObject {
   @HiveField(4)
   int shareCount;
 
+  @HiveField(5)
+  String? content;
+
+  @HiveField(6)
+  List<String>? imageUrls;
+
   Post({
     required this.userId,
     required this.time,
     this.likeCount = 0,
     this.commentCount = 0,
     this.shareCount = 0,
+    this.content,
+    this.imageUrls,
   });
 }

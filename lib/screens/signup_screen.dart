@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meetmax/screens/signIn_screen.dart';
+import '../mock_server/user_service.dart'; // Backend service
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -9,20 +10,20 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
+  final UserService _userService = UserService(); // Hive backend service
+
   bool _obscurePassword = true;
   String _gender = 'Male';
   String _selectedLanguage = 'English (UK)';
   final _languages = ['English (UK)', 'বাংলা'];
-  final TextEditingController _dobController = TextEditingController();
 
-  // Form field controllers
+  final TextEditingController _dobController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   @override
   void dispose() {
-    // Clean up controllers when widget is disposed
     _emailController.dispose();
     _nameController.dispose();
     _passwordController.dispose();
@@ -50,7 +51,7 @@ class _SignupScreenState extends State<SignUpScreen> {
             ],
           ),
         ),
-        leadingWidth: 150, // Fixed width for leading widget
+        leadingWidth: 150,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
@@ -154,7 +155,6 @@ class _SignupScreenState extends State<SignUpScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    // Email field with validation
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -174,7 +174,6 @@ class _SignupScreenState extends State<SignUpScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Name field with validation
                     TextFormField(
                       controller: _nameController,
                       decoration: _inputDecoration(
@@ -193,7 +192,6 @@ class _SignupScreenState extends State<SignUpScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Password field with validation
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
@@ -224,7 +222,6 @@ class _SignupScreenState extends State<SignUpScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Date of birth field with validation
                     TextFormField(
                       controller: _dobController,
                       readOnly: true,
@@ -239,7 +236,6 @@ class _SignupScreenState extends State<SignUpScreen> {
                         return null;
                       },
                       onTap: () async {
-                        // Show date picker
                         DateTime? picked = await showDatePicker(
                           context: context,
                           initialDate: DateTime(2000),
@@ -247,16 +243,14 @@ class _SignupScreenState extends State<SignUpScreen> {
                           lastDate: DateTime.now(),
                         );
                         if (picked != null) {
-                          setState(() {
-                            _dobController.text =
-                            '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
-                          });
+                          _dobController.text =
+                          '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
                         }
                       },
                     ),
                     const SizedBox(height: 20),
 
-                    // Gender selection
+                    // Gender radio buttons
                     Container(
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey.shade400),
@@ -279,9 +273,7 @@ class _SignupScreenState extends State<SignUpScreen> {
                                       color: Colors.blue.shade100,
                                       shape: BoxShape.circle,
                                     ),
-                                    child: const FaIcon(FontAwesomeIcons.mars,
-                                        size: 18,
-                                        color: Colors.blue),
+                                    child: const FaIcon(FontAwesomeIcons.mars, size: 18, color: Colors.blue),
                                   ),
                                   const SizedBox(width: 8),
                                   const Text('Male'),
@@ -290,11 +282,7 @@ class _SignupScreenState extends State<SignUpScreen> {
                               dense: true,
                             ),
                           ),
-                          Container(
-                            height: 30,
-                            width: 1,
-                            color: Colors.grey.shade400,
-                          ),
+                          Container(height: 30, width: 1, color: Colors.grey.shade400),
                           Expanded(
                             child: RadioListTile<String>(
                               contentPadding: const EdgeInsets.symmetric(horizontal: 8),
@@ -310,9 +298,7 @@ class _SignupScreenState extends State<SignUpScreen> {
                                       color: Colors.pink.shade100,
                                       shape: BoxShape.circle,
                                     ),
-                                    child: const FaIcon(FontAwesomeIcons.venus,
-                                        size: 18,
-                                        color: Colors.pink),
+                                    child: const FaIcon(FontAwesomeIcons.venus, size: 18, color: Colors.pink),
                                   ),
                                   const SizedBox(width: 8),
                                   const Text('Female'),
@@ -326,7 +312,7 @@ class _SignupScreenState extends State<SignUpScreen> {
                     ),
                     const SizedBox(height: 28),
 
-                    // Sign up button
+                    // Sign Up Button
                     SizedBox(
                       height: 50,
                       child: ElevatedButton(
@@ -349,14 +335,17 @@ class _SignupScreenState extends State<SignUpScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Sign in prompt
+                    // Sign In Prompt
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text('Already have an account?', style: TextStyle(color: Colors.black54)),
                         TextButton(
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => SignInScreen()));
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => SignInScreen()),
+                            );
                           },
                           child: const Text('Sign In', style: TextStyle(color: Color(0xFF2979FF))),
                         )
@@ -364,7 +353,7 @@ class _SignupScreenState extends State<SignUpScreen> {
                     )
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -372,38 +361,48 @@ class _SignupScreenState extends State<SignUpScreen> {
     );
   }
 
-  // Form submission handler
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // Form is valid - proceed with sign up
+      final email = _emailController.text.trim();
+      final name = _nameController.text.trim();
+      final password = _passwordController.text.trim();
+      final dob = _dobController.text.trim();
 
-      // In a real app, this is where you would:
-      // 1. Collect form data:
-      //   final email = _emailController.text;
-      //   final name = _nameController.text;
-      //   final password = _passwordController.text;
-      //   final dob = _dobController.text;
-      //   final gender = _gender;
-      //
-      // 2. Call authentication service:
-      //   AuthService.signUp(
-      //     email: email,
-      //     password: password,
-      //     name: name,
-      //     dob: dob,
-      //     gender: gender,
-      //   );
-      //
-      // 3. Handle response/navigation
+      final emailExists = await _userService.isEmailAlreadyRegistered(email);
 
-      // For now, just show a success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Form is valid! Ready for backend integration')),
+      if (emailExists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('This email is already registered.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      await _userService.registerUser(
+        name: name,
+        email: email,
+        password: password,
+        birthdate: dob,
       );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Registration successful! Redirecting to Sign In...'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      Future.delayed(const Duration(seconds: 1), () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SignInScreen()),
+        );
+      });
     }
   }
 
-  // Input decoration helper
   InputDecoration _inputDecoration({required String hint, required IconData icon, Widget? suffixIcon}) {
     return InputDecoration(
       hintText: hint,

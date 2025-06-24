@@ -1,27 +1,42 @@
 import 'package:flutter/material.dart';
-import 'screens/signup_screen.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
-  runApp(MeetmaxApp());
+import 'mock_server/hive_boxes.dart';
+import 'mock_server/seed_data.dart';
+import 'models/user.dart';
+import 'models/post.dart';
+import 'models/story.dart';
+
+import 'screens/signup_screen.dart';
+import 'screens/feed_screen.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+
+  Hive.registerAdapter(UserAdapter());
+  Hive.registerAdapter(PostAdapter());
+  Hive.registerAdapter(StoryAdapter());
+
+  await seedMockData();
+
+  final sessionBox = await Hive.openBox(HiveBoxes.sessionBox);
+  final rememberedEmail = sessionBox.get('email');
+
+  runApp(MeetmaxApp(isLoggedIn: rememberedEmail != null));
 }
 
 class MeetmaxApp extends StatelessWidget {
+  final bool isLoggedIn;
+
+  const MeetmaxApp({super.key, required this.isLoggedIn});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Meetmax',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Arial',
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          iconTheme: IconThemeData(color: Colors.black87),
-          titleTextStyle: TextStyle(color: Colors.black87, fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-      ),
-      home: SignUpScreen(),
+      title: 'Meetmax',
+      home: isLoggedIn ? const FeedScreen() : SignUpScreen(),
     );
   }
 }

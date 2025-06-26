@@ -1,30 +1,81 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
+import '../lib/mock_server/hive_boxes.dart';
+import '../lib/models/user.dart';
+import '../lib/models/user.dart';
+import '../lib/mock_server/hive_boxes.dart';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
+class UserProvider extends ChangeNotifier {
+  Box<User>? _userBox;
+  List<User> _users = [];
+  User? _currentUser;
 
-import 'package:meetmax/main.dart';
+  List<User> get users => _users;
+  User? get currentUser => _currentUser;
 
-void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MeetmaxApp(isLoggedIn: false));
+  UserProvider() {
+    _init();
+  }
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  Future<void> _init() async {
+    _userBox = await Hive.openBox<User>(HiveBoxes.userBox);
+    _users = _userBox!.values.toList();
+    await _loadCurrentUser();
+    notifyListeners();
+  }
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  Future<void> _loadCurrentUser() async {
+    final sessionBox = await Hive.openBox(HiveBoxes.sessionBox);
+    final userKey = sessionBox.get('currentUserKey') as int?;
+    if (userKey != null && _userBox != null) {
+      _currentUser = _userBox!.get(userKey);
+    }
+  }
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
-  });
+  User? getById(int key) {
+    if (_userBox == null) return null;
+    return _userBox!.get(key);
+  }
+
+  Future<int> addUser(User user) async {
+    if (_userBox == null) return -1;
+    final key = await _userBox!.add(user);
+
+    // Set the Hive key on the user object
+    user.key = key; // Add this line
+
+    _users = _userBox!.values.toList();
+    await setCurrentUser(user);
+    notifyListeners();
+    return key;
+  }
+
+  Future<void> loadCurrentUser() async {
+    final sessionBox = await Hive.openBox(HiveBoxes.sessionBox);
+    final key = sessionBox.get('currentUserKey') as int?;
+    if (key != null && _userBox != null) {
+      _currentUser = _userBox!.get(key);
+      notifyListeners();
+    }
+  }
+
+  Future<void> setCurrentUser(User user) async {
+    _currentUser = user;
+    final sessionBox = await Hive.openBox(HiveBoxes.sessionBox);
+
+    // Make sure the user has a key before saving
+    if (user.key != null) {
+      await sessionBox.put('currentUserKey', user.key);
+    }
+
+    notifyListeners();
+  }
+
+  // Add this clear method
+  Future<void> clearCurrentUser() async {
+    _currentUser = null;
+    final sessionBox = await Hive.openBox(HiveBoxes.sessionBox);
+    await sessionBox.delete('currentUserKey');
+    notifyListeners();
+  }
 }

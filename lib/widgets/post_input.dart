@@ -21,7 +21,7 @@ class _PostInputState extends State<PostInput> {
     final userProv = Provider.of<UserProvider>(context);
     final postProv = Provider.of<PostProvider>(context, listen: false);
 
-    final currentUser = userProv.users.isNotEmpty ? userProv.users.first : null;
+    final currentUser = userProv.users.isNotEmpty ? userProv.currentUser : null;
     final avatarUrl =
     currentUser != null ? 'https://i.pravatar.cc/150?u=${currentUser.email}' : null;
 
@@ -57,29 +57,36 @@ class _PostInputState extends State<PostInput> {
                     : TextButton(
                   onPressed: () async {
                     final text = _controller.text.trim();
-                    if ((text.isEmpty && _selectedImageUrls.isEmpty) ||
-                        currentUser == null) {
+                    if ((text.isEmpty && _selectedImageUrls.isEmpty) || currentUser == null) {
                       return;
                     }
                     setState(() {
                       _isPosting = true;
                     });
                     try {
-                      final userKey = currentUser.key as int;
+                      // Use currentUser.keyId instead of currentUser.key
+                      final userKey = currentUser.key;
+                      if (userKey == null) return; // Add null check
+
                       final newPost = Post(
-                        userId: userKey,
+                        userId: userKey, // Use keyId here
                         time: DateTime.now(),
                         content: text,
                         imageUrls: _selectedImageUrls,
                         likeCount: 0,
                         commentCount: 0,
                         shareCount: 0,
+                        likedUserIds: [], // Initialize with empty list
                       );
+
                       await postProv.addPost(newPost);
                       _controller.clear();
                       _selectedImageUrls = [];
                     } catch (e) {
-                      // handle error
+                      print('Error creating post: $e');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to create post')),
+                      );
                     } finally {
                       if (mounted) {
                         setState(() {
@@ -107,7 +114,6 @@ class _PostInputState extends State<PostInput> {
                 ),
                 TextButton.icon(
                   onPressed: () {
-                    // Simulate selecting an image by adding a random Unsplash URL:
                     setState(() {
                       final sig = DateTime.now().millisecondsSinceEpoch % 1000;
                       _selectedImageUrls

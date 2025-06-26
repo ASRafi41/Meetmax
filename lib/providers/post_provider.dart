@@ -6,7 +6,6 @@ import '../mock_server/hive_boxes.dart';
 class PostProvider extends ChangeNotifier {
   Box<Post>? _postBox;
   List<Post> _posts = [];
-
   List<Post> get posts => _posts;
 
   PostProvider() {
@@ -26,9 +25,7 @@ class PostProvider extends ChangeNotifier {
   }
 
   Future<void> reload() async {
-    if (_postBox == null) {
-      _postBox = await Hive.openBox<Post>(HiveBoxes.postBox);
-    }
+    _postBox ??= await Hive.openBox<Post>(HiveBoxes.postBox);
     _reloadPosts();
   }
 
@@ -39,11 +36,14 @@ class PostProvider extends ChangeNotifier {
     return key;
   }
 
-  Future<void> likePost(int postKey) async {
+  Future<void> likePost(int postKey, int userId) async {
     if (_postBox == null) return;
     final post = _postBox!.get(postKey);
-    if (post != null) {
-      post.likeCount += 1;
+    if (post == null) return;
+    post.likedUserIds ??= [];
+    if (!post.likedUserIds!.contains(userId)) {
+      post.likedUserIds!.add(userId);
+      post.likeCount = post.likedUserIds!.length;
       await post.save();
       _reloadPosts();
     }
@@ -57,5 +57,11 @@ class PostProvider extends ChangeNotifier {
       await post.save();
       _reloadPosts();
     }
+  }
+
+  Future<void> deletePost(int postKey) async {
+    if (_postBox == null) return;
+    await _postBox!.delete(postKey);
+    _reloadPosts();
   }
 }

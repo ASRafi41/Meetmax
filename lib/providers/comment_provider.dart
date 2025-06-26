@@ -43,4 +43,13 @@ class CommentProvider extends ChangeNotifier {
     _reloadComments();
     return key;
   }
+
+  Future<void> deleteCommentsForPost(int postId) async {
+    if (_commentBox == null) return;
+    final toDelete = _commentBox!.values.where((c) => c.postId == postId).toList();
+    for (var c in toDelete) {
+      await c.delete();
+    }
+    _reloadComments();
+  }
 }

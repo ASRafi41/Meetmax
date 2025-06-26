@@ -11,194 +11,144 @@ Future<void> seedMockData() async {
   final postBox = await Hive.openBox<Post>(HiveBoxes.postBox);
   final commentBox = await Hive.openBox<Comment>(HiveBoxes.commentBox);
 
+  // Seed users
   if (userBox.isEmpty) {
-    // 1. Users
-    final users = [
-      User(
-        name: 'John Doe',
-        email: 'john@example.com',
+    final mockUsers = [
+      'Marcus Ng',
+      'David Brooks',
+      'Jane Doe',
+      'Matthew Hinkle',
+      'Amy Smith',
+      'Ed Morris',
+      'Carolyn Duncan',
+      'Paul Pinnock',
+      'Elizabeth Wong',
+      'James Lathrop',
+      'Jessie Samson',
+    ];
+
+    for (var i = 0; i < mockUsers.length; i++) {
+      final user = User(
+        name: mockUsers[i],
+        email: '${mockUsers[i].toLowerCase().replaceAll(" ", "")}@mock.com',
         password: '123456',
-        birthdate: '01/01/2000',
+        birthdate: '1990-01-01',
         createdTime: DateTime.now(),
-      ),
-      User(
-        name: 'Jane Smith',
-        email: 'jane@example.com',
-        password: 'abcdef',
-        birthdate: '02/02/2001',
-        createdTime: DateTime.now(),
-      ),
-      User(
-        name: 'Ali Hasan',
-        email: 'ali@example.com',
-        password: 'pass123',
-        birthdate: '03/03/1999',
-        createdTime: DateTime.now(),
-      ),
-      User(
-        name: 'Sara Khan',
-        email: 'sara@example.com',
-        password: 'password',
-        birthdate: '04/04/2002',
-        createdTime: DateTime.now(),
-      ),
-    ];
-    final userKeys = <int>[];
-    for (var u in users) {
-      final key = await userBox.add(u);
-      userKeys.add(key);
+      );
+      await userBox.add(user);
     }
+  }
 
-    // 2. Stories
-    final stories = [
-      Story(
-        userId: userKeys[0],
-        imageUrl: 'https://source.unsplash.com/random/200x200?sig=10',
-        text: 'Adventure time!',
-      ),
-      Story(
-        userId: userKeys[1],
-        imageUrl: 'https://source.unsplash.com/random/200x200?sig=20',
-        text: 'Photography day',
-      ),
-      Story(
-        userId: userKeys[2],
-        imageUrl: 'https://source.unsplash.com/random/200x200?sig=30',
-        text: 'Beach vibes',
-      ),
-      Story(
-        userId: userKeys[3],
-        imageUrl: 'https://source.unsplash.com/random/200x200?sig=40',
-        text: 'Coffee break',
-      ),
+  final userKeys = userBox.keys.cast<int>().toList();
+  final users = userBox.values.toList();
+
+  // Seed stories
+  if (storyBox.isEmpty) {
+    final storyImageUrls = [
+      'https://images.unsplash.com/photo-1498307833015-e7b400441eb8',
+      'https://images.unsplash.com/photo-1499363536502-87642509e31b',
+      'https://images.unsplash.com/photo-1497262693247-aa258f96c4f5',
+      'https://images.unsplash.com/photo-1496950866446-3253e1470e8e',
+      'https://images.unsplash.com/photo-1475688621402-4257c812d6db',
     ];
-    for (var s in stories) {
-      await storyBox.add(s);
-    }
 
-    // 3. Posts
-    final now = DateTime.now();
-    final posts = [
-      Post(
-        userId: userKeys[0],
-        time: now.subtract(const Duration(minutes: 15)),
-        likeCount: 12,
-        commentCount: 2,
-        shareCount: 1,
-        content: 'Loving this view!',
-        imageUrls: ['https://source.unsplash.com/random/800x600?sig=101'],
-      ),
-      Post(
-        userId: userKeys[1],
-        time: now.subtract(const Duration(hours: 2, minutes: 10)),
-        likeCount: 30,
-        commentCount: 3,
-        shareCount: 4,
-        content: 'Weekend getaway snapshots.',
-        imageUrls: [
-          'https://source.unsplash.com/random/400x300?sig=201',
-          'https://source.unsplash.com/random/400x300?sig=202',
-          'https://source.unsplash.com/random/400x300?sig=203',
-          'https://source.unsplash.com/random/400x300?sig=204',
-        ],
-      ),
-      Post(
-        userId: userKeys[2],
-        time: now.subtract(const Duration(days: 1, hours: 1)),
-        likeCount: 50,
-        commentCount: 4,
-        shareCount: 5,
-        content: 'Exploring the mountains.',
-        imageUrls: [
-          'https://source.unsplash.com/random/800x600?sig=301',
-          'https://source.unsplash.com/random/800x600?sig=302',
-        ],
-      ),
-      Post(
-        userId: userKeys[3],
-        time: now.subtract(const Duration(hours: 5)),
-        likeCount: 8,
-        commentCount: 1,
-        shareCount: 0,
-        content: 'Coffee art is life ☕',
-        imageUrls: ['https://source.unsplash.com/random/800x600?sig=401'],
-      ),
+    for (var i = 0; i < storyImageUrls.length && i < userKeys.length; i++) {
+      await storyBox.add(Story(
+        userId: userKeys[i],
+        imageUrl: storyImageUrls[i],
+        text: 'Story from ${users[i].name}',
+      ));
+    }
+  }
+
+  // Seed posts
+  if (postBox.isEmpty) {
+    final postSamples = [
+      {
+        "caption": "Check out these cool puppers",
+        "imageUrl": "https://images.unsplash.com/photo-1525253086316-d0c936c814f8",
+        "likes": 1202,
+        "comments": 184,
+        "shares": 96,
+        "userIndex": 0,
+      },
+      {
+        "caption": "Lorem ipsum dolor sit amet, consectetur adipiscing elit...",
+        "imageUrl": null,
+        "likes": 683,
+        "comments": 79,
+        "shares": 18,
+        "userIndex": 5,
+      },
+      {
+        "caption": "This is a very good boi.",
+        "imageUrl": "https://images.unsplash.com/photo-1575535468632-345892291673",
+        "likes": 894,
+        "comments": 201,
+        "shares": 27,
+        "userIndex": 4,
+      },
+      {
+        "caption": "Adventure 🏔",
+        "imageUrl": "https://images.unsplash.com/photo-1573331519317-30b24326bb9a",
+        "likes": 722,
+        "comments": 183,
+        "shares": 42,
+        "userIndex": 3,
+      },
+      {
+        "caption": "More placeholder text for the soul...",
+        "imageUrl": null,
+        "likes": 482,
+        "comments": 37,
+        "shares": 9,
+        "userIndex": 0,
+      },
+      {
+        "caption": "A classic.",
+        "imageUrl": "https://images.unsplash.com/reserve/OlxPGKgRUaX0E1hg3b3X_Dumbo.JPG",
+        "likes": 1523,
+        "comments": 301,
+        "shares": 129,
+        "userIndex": 9,
+      },
     ];
-    final postKeys = <int>[];
-    for (var p in posts) {
-      final key = await postBox.add(p);
-      postKeys.add(key);
+
+    for (var postData in postSamples) {
+      final int userIndex = postData["userIndex"] as int;
+      final int userId = userKeys[userIndex];
+      final String? image = postData["imageUrl"] as String?;
+      final String caption = postData["caption"] as String;
+      final int likes = postData["likes"] as int;
+      final int comments = postData["comments"] as int;
+      final int shares = postData["shares"] as int;
+
+      await postBox.add(Post(
+        userId: userId,
+        content: caption,
+        imageUrls: image != null ? [image] : [],
+        time: DateTime.now().subtract(Duration(hours: userIndex * 3)),
+        likeCount: likes,
+        commentCount: comments,
+        shareCount: shares,
+        likedUserIds: [],
+      ));
     }
+  }
 
-    // 4. Comments
-    final comments = <Comment>[];
-    // Post 0
-    comments.add(Comment(
-      postId: postKeys[0],
-      userId: userKeys[1],
-      text: 'Looks amazing!',
-      time: now.subtract(const Duration(minutes: 10)),
-    ));
-    comments.add(Comment(
-      postId: postKeys[0],
-      userId: userKeys[2],
-      text: 'Where is this place?',
-      time: now.subtract(const Duration(minutes: 5)),
-    ));
-    // Post 1
-    comments.add(Comment(
-      postId: postKeys[1],
-      userId: userKeys[0],
-      text: 'Great shots!',
-      time: now.subtract(const Duration(hours: 2)),
-    ));
-    comments.add(Comment(
-      postId: postKeys[1],
-      userId: userKeys[2],
-      text: 'I want to go there.',
-      time: now.subtract(const Duration(hours: 1, minutes: 45)),
-    ));
-    comments.add(Comment(
-      postId: postKeys[1],
-      userId: userKeys[3],
-      text: 'Nice!',
-      time: now.subtract(const Duration(hours: 1, minutes: 30)),
-    ));
-    // Post 2
-    comments.add(Comment(
-      postId: postKeys[2],
-      userId: userKeys[0],
-      text: 'Beautiful!',
-      time: now.subtract(const Duration(hours: 23)),
-    ));
-    comments.add(Comment(
-      postId: postKeys[2],
-      userId: userKeys[1],
-      text: 'How was the trek?',
-      time: now.subtract(const Duration(hours: 22)),
-    ));
-    comments.add(Comment(
-      postId: postKeys[2],
-      userId: userKeys[3],
-      text: 'So cool.',
-      time: now.subtract(const Duration(hours: 21, minutes: 30)),
-    ));
-    comments.add(Comment(
-      postId: postKeys[2],
-      userId: userKeys[0],
-      text: 'Adding to my list!',
-      time: now.subtract(const Duration(hours: 21)),
-    ));
-    // Post 3
-    comments.add(Comment(
-      postId: postKeys[3],
-      userId: userKeys[0],
-      text: 'Yum!',
-      time: now.subtract(const Duration(hours: 4, minutes: 30)),
-    ));
+  // Seed comments
+  if (commentBox.isEmpty) {
+    final postKeys = postBox.keys.cast<int>().toList();
+    for (var i = 0; i < postKeys.length; i++) {
+      final postKey = postKeys[i];
+      final commenterKey = userKeys[(i + 1) % userKeys.length];
 
-    for (var c in comments) {
-      await commentBox.add(c);
+      await commentBox.add(Comment(
+        postId: postKey,
+        userId: commenterKey,
+        text: 'Great post!',
+        time: DateTime.now().subtract(Duration(minutes: i * 5)),
+      ));
     }
   }
 }

@@ -6,6 +6,7 @@ import 'package:meetmax/mock_server/user_service.dart';
 import 'package:meetmax/screens/feed_screen.dart';
 import 'package:meetmax/screens/forgot_password_screen.dart';
 import 'package:meetmax/screens/signup_screen.dart';
+import 'package:meetmax/models/user.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -205,10 +206,15 @@ class _SignInScreenState extends State<SignInScreen> {
       final isAuthenticated = await userService.authenticateUser(email, password);
 
       if (isAuthenticated) {
+        final userBox = await Hive.openBox<User>(HiveBoxes.userBox);
+        final user = userBox.values.firstWhere((u) => u.email == email);
+
+        final sessionBox = await Hive.openBox(HiveBoxes.sessionBox);
+        await sessionBox.put('currentUserKey', user.key); // ✅ Fix
         if (_rememberMe) {
-          final sessionBox = await Hive.openBox(HiveBoxes.sessionBox);
-          await sessionBox.put('email', email); // save session
+          await sessionBox.put('email', email); // Optional
         }
+
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => FeedScreen()));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

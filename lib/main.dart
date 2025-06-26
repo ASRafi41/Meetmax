@@ -22,24 +22,40 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
 
+  // Register Hive adapters
   Hive.registerAdapter(UserAdapter());
   Hive.registerAdapter(StoryAdapter());
   Hive.registerAdapter(PostAdapter());
   Hive.registerAdapter(CommentAdapter());
 
-  // During development: optionally clear boxes if model changed:
-  // await Hive.deleteBoxFromDisk(HiveBoxes.userBox);
-  // await Hive.deleteBoxFromDisk(HiveBoxes.storyBox);
-  // await Hive.deleteBoxFromDisk(HiveBoxes.postBox);
-  // await Hive.deleteBoxFromDisk(HiveBoxes.commentBox);
-  // await Hive.deleteBoxFromDisk(HiveBoxes.sessionBox);
+  // Optional: Clear existing data for a clean demo experience
+  await Hive.deleteBoxFromDisk(HiveBoxes.userBox);
+  await Hive.deleteBoxFromDisk(HiveBoxes.storyBox);
+  await Hive.deleteBoxFromDisk(HiveBoxes.postBox);
+  await Hive.deleteBoxFromDisk(HiveBoxes.commentBox);
+  await Hive.deleteBoxFromDisk(HiveBoxes.sessionBox);
 
+  // Seed mock data
   await seedMockData();
 
+  // Load session and determine login state
   final sessionBox = await Hive.openBox(HiveBoxes.sessionBox);
   final rememberedEmail = sessionBox.get('email') as String?;
 
-  runApp(MeetmaxApp(isLoggedIn: rememberedEmail != null));
+  final userProvider = UserProvider();
+  await userProvider.loadCurrentUser();
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => userProvider),
+        ChangeNotifierProvider(create: (_) => StoryProvider()),
+        ChangeNotifierProvider(create: (_) => PostProvider()),
+        ChangeNotifierProvider(create: (_) => CommentProvider()),
+      ],
+      child: MeetmaxApp(isLoggedIn: rememberedEmail != null),
+    ),
+  );
 }
 
 class MeetmaxApp extends StatelessWidget {
@@ -49,18 +65,13 @@ class MeetmaxApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => UserProvider()),
-        ChangeNotifierProvider(create: (_) => StoryProvider()),
-        ChangeNotifierProvider(create: (_) => PostProvider()),
-        ChangeNotifierProvider(create: (_) => CommentProvider()),
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Meetmax',
-        home: isLoggedIn ? const FeedScreen() : SignUpScreen(),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Meetmax',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
       ),
+      home: isLoggedIn ? const FeedScreen() : SignUpScreen(),
     );
   }
 }

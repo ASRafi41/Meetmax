@@ -25,6 +25,9 @@ class Post extends HiveObject {
   @HiveField(6)
   List<String>? imageUrls;
 
+  @HiveField(7)
+  List<int>? likedUserIds; // new: track which user keys have liked
+
   Post({
     required this.userId,
     required this.time,
@@ -33,5 +36,6 @@ class Post extends HiveObject {
     this.shareCount = 0,
     this.content,
     this.imageUrls,
+    this.likedUserIds = const [],
   });
 }

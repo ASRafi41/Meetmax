@@ -25,16 +25,21 @@ class _PostCardState extends State<PostCard> {
   Widget build(BuildContext context) {
     final userProv = Provider.of<UserProvider>(context, listen: false);
     final postProv = Provider.of<PostProvider>(context, listen: false);
-    final commentProv = Provider.of<CommentProvider>(context);
+    final commentProv = Provider.of<CommentProvider>(context, listen: false);
 
     final user = userProv.getById(widget.post.userId);
     final userName = user?.name ?? 'User';
-    final avatarUrl =
-    user != null ? 'https://i.pravatar.cc/150?u=${user.email}' : null;
+    final avatarUrl = user != null ? 'https://i.pravatar.cc/150?u=${user.email}' : null;
+
+    final currentUser = userProv.currentUser;
+    final currentKey = currentUser != null ? currentUser.key as int : null;
 
     final content = widget.post.content ?? '';
     final images = widget.post.imageUrls ?? [];
-    final comments = commentProv.getByPostId(widget.postKey);
+    final comments = Provider.of<CommentProvider>(context).getByPostId(widget.postKey);
+
+    // Determine like state
+    final isLiked = widget.post.likedUserIds?.contains(currentKey) ?? false;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -48,9 +53,22 @@ class _PostCardState extends State<PostCard> {
             ),
             title: Text(userName),
             subtitle: Text(_formattedTime(widget.post.time)),
-            trailing: IconButton(
-              icon: const Icon(Icons.more_horiz),
-              onPressed: () {},
+            trailing: PopupMenuButton<String>(
+              onSelected: (value) async {
+                if (value == 'delete' && currentKey == widget.post.userId) {
+                  await postProv.deletePost(widget.postKey);
+                  await commentProv.deleteCommentsForPost(widget.postKey);
+                }
+              },
+              itemBuilder: (context) {
+                return [
+                  if (currentKey == widget.post.userId)
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Text('Delete'),
+                    ),
+                ];
+              },
             ),
           ),
           if (content.isNotEmpty)
@@ -59,18 +77,18 @@ class _PostCardState extends State<PostCard> {
               child: Text(content),
             ),
           const SizedBox(height: 8),
-          if (images.isNotEmpty) _buildImageGrid(images),
+          // Images grid or single image
+          if (images.isNotEmpty)
+            _buildImageGrid(images),
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('👍 ${widget.post.likeCount}',
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
-                Text('💬 ${widget.post.commentCount}',
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
-                Text('↪️ ${widget.post.shareCount}',
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text('❤️ ${widget.post.likeCount}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text('💬 ${widget.post.commentCount}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text('✉️ ${widget.post.shareCount}', style: const TextStyle(fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -78,29 +96,33 @@ class _PostCardState extends State<PostCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+              // Like button with limit and color
               TextButton.icon(
                 onPressed: () {
-                  postProv.likePost(widget.postKey);
+                  if (currentKey != null && !isLiked) {
+                    postProv.likePost(widget.postKey, currentKey);
+                  }
                 },
-                icon: const Icon(Icons.thumb_up_off_alt),
-                label: const Text('Like'),
+                icon: Icon(
+                  Icons.favorite,
+                  color: isLiked ? Colors.red : Colors.grey,
+                ),
+                label: Text('${widget.post.likeCount}'),
               ),
               TextButton.icon(
                 onPressed: () {
-                  setState(() {
-                    _showComments = !_showComments;
-                  });
+                  setState(() => _showComments = !_showComments);
                 },
-                icon: const Icon(Icons.comment_outlined),
-                label: const Text('Comments'),
+                icon: const Icon(Icons.mode_comment_outlined),
+                label: const Text('Comment'),
               ),
               TextButton.icon(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Share action not implemented')),
+                    const SnackBar(content: Text('Share not implemented')),
                   );
                 },
-                icon: const Icon(Icons.share_outlined),
+                icon: const Icon(Icons.send),
                 label: const Text('Share'),
               ),
             ],
@@ -138,14 +160,10 @@ class _PostCardState extends State<PostCard> {
                               children: [
                                 Text(
                                   commenterName,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w600, fontSize: 13),
+                                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                                 ),
                                 const SizedBox(height: 2),
-                                Text(
-                                  c.text,
-                                  style: const TextStyle(fontSize: 14),
-                                ),
+                                Text(c.text, style: const TextStyle(fontSize: 14)),
                                 Text(
                                   _formattedTime(c.time),
                                   style: TextStyle(fontSize: 11, color: Colors.grey[600]),
@@ -161,10 +179,8 @@ class _PostCardState extends State<PostCard> {
                     children: [
                       CircleAvatar(
                         radius: 15,
-                        backgroundImage:
-                        avatarUrl != null ? NetworkImage(avatarUrl) : null,
-                        child:
-                        avatarUrl == null ? const Icon(Icons.person, size: 15) : null,
+                        backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                        child: avatarUrl == null ? const Icon(Icons.person, size: 15) : null,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -200,17 +216,13 @@ class _PostCardState extends State<PostCard> {
   }
 
   Widget _buildImageGrid(List<String> images) {
-    int count = images.length;
-    if (count == 1) {
-      return AspectRatio(
-        aspectRatio: 16 / 9,
-        child: _networkImage(images[0]),
-      );
+    if (images.length == 1) {
+      return _networkImage(images[0]);
     }
     int crossAxisCount = 2;
     double spacing = 2;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 0),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: LayoutBuilder(builder: (context, constraints) {
         double totalWidth = constraints.maxWidth;
         double itemWidth = (totalWidth - spacing) / crossAxisCount;
@@ -218,32 +230,41 @@ class _PostCardState extends State<PostCard> {
         return Wrap(
           spacing: spacing,
           runSpacing: spacing,
-          children: List.generate(images.length, (idx) {
+          children: images.map((url) {
             return SizedBox(
               width: itemWidth,
               height: itemHeight,
-              child: _networkImage(images[idx]),
+              child: _networkImage(url),
             );
-          }),
+          }).toList(),
         );
       }),
     );
   }
 
   Widget _networkImage(String url) {
-    return Image.network(
-      url,
-      fit: BoxFit.cover,
-      loadingBuilder: (context, child, progress) {
-        if (progress == null) return child;
-        return const Center(child: CircularProgressIndicator());
-      },
-      errorBuilder: (context, error, stack) {
-        return Container(
-          color: Colors.grey[200],
-          child: const Center(child: Icon(Icons.broken_image)),
-        );
-      },
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.network(
+        url,
+        fit: BoxFit.cover,
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) return child;
+          return const SizedBox(
+            height: 150,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            height: 150,
+            color: Colors.grey[200],
+            child: const Center(
+              child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -259,34 +280,27 @@ class _PostCardState extends State<PostCard> {
   Future<void> _submitComment() async {
     final text = _commentController.text.trim();
     if (text.isEmpty) return;
-    setState(() {
-      _isCommenting = true;
-    });
+    setState(() => _isCommenting = true);
     try {
       final userProv = Provider.of<UserProvider>(context, listen: false);
-      final postProv = Provider.of<PostProvider>(context, listen: false);
       final commentProv = Provider.of<CommentProvider>(context, listen: false);
       if (userProv.users.isEmpty) return;
       final currentUser = userProv.users.first;
       final userKey = currentUser.key as int;
       final now = DateTime.now();
-      final comment = Comment(
-        postId: widget.postKey,
-        userId: userKey,
-        text: text,
-        time: now,
+      await commentProv.addComment(
+        Comment(
+          postId: widget.postKey,
+          userId: userKey,
+          text: text,
+          time: now,
+        ),
       );
-      await commentProv.addComment(comment);
-      await postProv.incrementCommentCount(widget.postKey);
+      await Provider.of<PostProvider>(context, listen: false)
+          .incrementCommentCount(widget.postKey);
       _commentController.clear();
-    } catch (_) {
-      // handle error
     } finally {
-      if (mounted) {
-        setState(() {
-          _isCommenting = false;
-        });
-      }
+      if (mounted) setState(() => _isCommenting = false);
     }
   }
 }

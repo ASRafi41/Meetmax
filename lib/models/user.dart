@@ -19,11 +19,16 @@ class User extends HiveObject {
   @HiveField(4)
   DateTime createdTime;
 
+  // Add an explicit key field
+  @HiveField(5)
+  int? key; // New field to store the key
+
   User({
     required this.name,
     required this.email,
     required this.password,
     required this.birthdate,
     required this.createdTime,
+    this.key,
   });
 }

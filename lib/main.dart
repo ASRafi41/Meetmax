@@ -18,7 +18,7 @@ import 'providers/comment_provider.dart';
 import 'screens/signup_screen.dart';
 import 'screens/feed_screen.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
 
@@ -31,10 +31,11 @@ void main() async {
   // Seed mock data
   await seedMockData();
 
-  // Load session and determine login state
-  final sessionBox = await Hive.openBox(HiveBoxes.sessionBox);
-  final rememberedEmail = sessionBox.get('email') as String?;
+  // Open session box & check for saved email
+  final sessionBox = await Hive.openBox<String>(HiveBoxes.sessionBox);
+  final rememberedEmail = sessionBox.get('email');
 
+  // Load current user into provider
   final userProvider = UserProvider();
   await userProvider.loadCurrentUser();
 
@@ -61,10 +62,16 @@ class MeetmaxApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Meetmax',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: isLoggedIn ? const FeedScreen() : SignUpScreen(),
+      theme: ThemeData(primarySwatch: Colors.blue),
+
+      // define your named routes
+      routes: {
+        '/login': (_) => SignUpScreen(),
+        '/feed': (_) => const FeedScreen(),
+      },
+
+      // pick the initial screen
+      initialRoute: isLoggedIn ? '/feed' : '/login',
     );
   }
 }

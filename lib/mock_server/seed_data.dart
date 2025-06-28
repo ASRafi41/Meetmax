@@ -65,6 +65,14 @@ Future<void> seedMockData() async {
   if (postBox.isEmpty) {
     final postSamples = [
       {
+        "caption": "Adventure 🏔",
+        "imageUrl": "https://images.unsplash.com/photo-1573331519317-30b24326bb9a",
+        "likes": 722,
+        "comments": 183,
+        "shares": 42,
+        "userIndex": 3,
+      },
+      {
         "caption": "Check out these cool puppers",
         "imageUrl": "https://images.unsplash.com/photo-1525253086316-d0c936c814f8",
         "likes": 1202,
@@ -87,14 +95,6 @@ Future<void> seedMockData() async {
         "comments": 201,
         "shares": 27,
         "userIndex": 4,
-      },
-      {
-        "caption": "Adventure 🏔",
-        "imageUrl": "https://images.unsplash.com/photo-1573331519317-30b24326bb9a",
-        "likes": 722,
-        "comments": 183,
-        "shares": 42,
-        "userIndex": 3,
       },
       {
         "caption": "More placeholder text for the soul...",

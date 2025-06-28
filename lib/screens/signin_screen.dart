@@ -37,13 +37,13 @@ class _SignInScreenState extends State<SignInScreen> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16.0),
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 16.0),
           child: Row(
             children: [
               Icon(Icons.location_on, color: Colors.blue),
-              const SizedBox(width: 6),
-              const Text(
+              SizedBox(width: 6),
+              Text(
                 'Meetmax',
                 style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
               ),

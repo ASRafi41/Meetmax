@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import '../models/post.dart';
 import '../models/comment.dart';
@@ -54,6 +55,7 @@ class _PostCardState extends State<PostCard> {
             title: Text(userName),
             subtitle: Text(_formattedTime(widget.post.time)),
             trailing: PopupMenuButton<String>(
+              icon: const Icon(Icons.more_horiz), // horizontal dots
               onSelected: (value) async {
                 if (value == 'delete' && currentKey == widget.post.userId) {
                   await postProv.deletePost(widget.postKey);
@@ -84,15 +86,26 @@ class _PostCardState extends State<PostCard> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('❤️ ${widget.post.likeCount}', style: const TextStyle(fontWeight: FontWeight.w600)),
-                Text('💬 ${widget.post.commentCount}', style: const TextStyle(fontWeight: FontWeight.w600)),
-                Text('✉️ ${widget.post.shareCount}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  '💙 ${widget.post.likeCount}',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const Spacer(), // Pushes the next items to the right
+                Text(
+                  '${widget.post.commentCount} Comments',
+                  style: const TextStyle(fontWeight: FontWeight.w300),
+                ),
+                const SizedBox(width: 12), // Space between Comments and Share
+                Text(
+                  '${widget.post.shareCount} Share',
+                  style: const TextStyle(fontWeight: FontWeight.w300),
+                ),
               ],
             ),
           ),
           const Divider(height: 1),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -105,9 +118,9 @@ class _PostCardState extends State<PostCard> {
                 },
                 icon: Icon(
                   Icons.favorite,
-                  color: isLiked ? Colors.red : Colors.grey,
+                  color: isLiked ? Colors.blue : Colors.grey,
                 ),
-                label: Text('${widget.post.likeCount}'),
+                label: const Text('Like'),
               ),
               TextButton.icon(
                 onPressed: () {
@@ -122,7 +135,7 @@ class _PostCardState extends State<PostCard> {
                     const SnackBar(content: Text('Share not implemented')),
                   );
                 },
-                icon: const Icon(Icons.send),
+                icon: const Icon(FontAwesomeIcons.arrowRight) ,
                 label: const Text('Share'),
               ),
             ],

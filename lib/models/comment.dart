@@ -1,5 +1,4 @@
 import 'package:hive/hive.dart';
-
 part 'comment.g.dart';
 
 @HiveType(typeId: 3)

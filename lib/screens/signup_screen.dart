@@ -235,7 +235,6 @@ class _SignupScreenState extends State<SignUpScreen> {
                       ),
                       child: Row(
                         children: [
-                          // 1) Static bold black male symbol
                           const Flexible(
                             fit: FlexFit.tight,
                             flex: 1,
@@ -316,7 +315,6 @@ class _SignupScreenState extends State<SignUpScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Sign In prompt
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

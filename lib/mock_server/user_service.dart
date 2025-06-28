@@ -31,6 +31,4 @@ class UserService {
     final userBox = await Hive.openBox<User>(HiveBoxes.userBox);
     return userBox.values.any((u) => u.email == email);
   }
-
-
 }

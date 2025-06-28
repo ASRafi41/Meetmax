@@ -39,7 +39,6 @@ class UserProvider extends ChangeNotifier {
     if (_userBox == null) return -1;
     final key = await _userBox!.add(user);
 
-    // Set the Hive key on the user object
     user.key = key;
 
     _users = _userBox!.values.toList();
@@ -77,7 +76,6 @@ class UserProvider extends ChangeNotifier {
 
   Future<void> logout() async {
     await clearCurrentUser();
-    // Add other cleanup logic if needed
     notifyListeners();
   }
 }

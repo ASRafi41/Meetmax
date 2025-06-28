@@ -127,20 +127,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ElevatedButton(
                     onPressed: () {
                       // TODO: Implement password reset functionality
-                      // Backend Integration Point:
-                      // Validate email and send password reset link
-                      // Example:
-                      // if (_emailController.text.isNotEmpty) {
-                      //   try {
-                      //     await FirebaseAuth.instance
-                      //       .sendPasswordResetEmail(email: _emailController.text);
-                      //     showSuccessDialog('Password reset email sent!');
-                      //   } catch (e) {
-                      //     showErrorDialog('Failed to send reset email: ${e.toString()}');
-                      //   }
-                      // } else {
-                      //   showErrorDialog('Please enter your email address');
-                      // }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2979FF),

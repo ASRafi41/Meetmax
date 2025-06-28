@@ -210,9 +210,9 @@ class _SignInScreenState extends State<SignInScreen> {
         final user = userBox.values.firstWhere((u) => u.email == email);
 
         final sessionBox = await Hive.openBox(HiveBoxes.sessionBox);
-        await sessionBox.put('currentUserKey', user.key); // ✅ Fix
+        await sessionBox.put('currentUserKey', user.key);
         if (_rememberMe) {
-          await sessionBox.put('email', email); // Optional
+          await sessionBox.put('email', email);
         }
 
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => FeedScreen()));

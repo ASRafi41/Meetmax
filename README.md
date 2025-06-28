@@ -97,17 +97,17 @@ lib/
 
 ## 🖼 Screenshots
 
-| Sign Up              | Sign In               |
-|----------------------|-----------------------|
-| `assets/screenshots/SignUp.jpg` | `assets/screenshots/SignIn.jpg` |
+| Sign Up                                          | Sign In                                          |
+|--------------------------------------------------|--------------------------------------------------|
+| ![Signup screen](assets/screenshots/SignUp.jpg)  | ![Signin screen](assets/screenshots/SignIn.jpg)  |
 
-| Feed Screen                         | Create Post                           |
-|-------------------------------------|---------------------------------------|
-| `assets/screenshots/FeedScreen.jpg` | `assets/screenshots/CreatePost.jpg`   |
+| Feed Screen                                       | Create Post                                              |
+|---------------------------------------------------|----------------------------------------------------------|
+| ![Feed screen](assets/screenshots/FeedScreen.jpg) | ![Create post screen](assets/screenshots/CreatePost.jpg) |
 
-| Forget Password                         |
-|-----------------------------------------|
-| `assets/screenshots/ForgetPassword.jpg` |
+| Forget Password                                                   |
+|-------------------------------------------------------------------|
+| ![Forget Password screen](assets/screenshots/ForgetPassword.jpg)  |
 
 ---
 

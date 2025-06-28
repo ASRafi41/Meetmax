@@ -29,11 +29,17 @@ class PostProvider extends ChangeNotifier {
     _reloadPosts();
   }
 
+  /// Internal method to add a post and return the key
   Future<int> addPost(Post post) async {
     if (_postBox == null) return -1;
     final key = await _postBox!.add(post);
     _reloadPosts();
     return key;
+  }
+
+  /// Public method for UI to create a new post
+  Future<void> createPost(Post post) async {
+    await addPost(post);
   }
 
   Future<void> likePost(int postKey, int userId) async {

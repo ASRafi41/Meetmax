@@ -18,6 +18,7 @@ class FeedScreen extends StatefulWidget {
 class _FeedScreenState extends State<FeedScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchText = '';
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -32,26 +33,27 @@ class _FeedScreenState extends State<FeedScreen> {
     });
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  void _onNavTapped(int index) {
+    setState(() => _selectedIndex = index);
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Future<void> _logout() async {
+    final userProv = Provider.of<UserProvider>(context, listen: false);
+    await userProv.logout();
+    // Navigate to login or splash screen after logout
+    Navigator.of(context).pushReplacementNamed('/login');
+  }
+
+  Widget _buildFeed() {
     final storyProv = Provider.of<StoryProvider>(context);
     final postProv = Provider.of<PostProvider>(context);
     final userProv = Provider.of<UserProvider>(context);
     final currentUser = userProv.currentUser;
-    if (currentUser != null) {
-      print('Logged in as: ${currentUser.name}');
-    }
+
     final avatarUrl = currentUser != null
         ? 'https://i.pravatar.cc/150?u=${currentUser.email}'
         : null;
 
-    // Filter posts by search: match content or poster's name
     final allPosts = postProv.posts;
     final filteredPosts = allPosts.where((post) {
       final content = post.content?.toLowerCase() ?? '';
@@ -62,13 +64,8 @@ class _FeedScreenState extends State<FeedScreen> {
 
     Widget feedContent = CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(
-          child:
-          storyProv.stories.isEmpty ? const SizedBox.shrink() : const StoryList(),
-        ),
-        SliverToBoxAdapter(
-          child: const PostInput(),
-        ),
+        SliverToBoxAdapter(child: storyProv.stories.isEmpty ? const SizedBox.shrink() : const StoryList()),
+        const SliverToBoxAdapter(child: PostInput()),
         SliverList(
           delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -109,7 +106,7 @@ class _FeedScreenState extends State<FeedScreen> {
               filled: true,
               fillColor: Colors.grey[200],
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6), // ← Rectangular-ish
+                borderRadius: BorderRadius.circular(6),
                 borderSide: BorderSide.none,
               ),
             ),
@@ -119,7 +116,7 @@ class _FeedScreenState extends State<FeedScreen> {
           IconButton(
             icon: const Icon(Icons.chat_outlined, color: Colors.black87),
             onPressed: () {
-              // Navigate to messages screen
+              // TODO: Navigate to messages screen
             },
             tooltip: 'Messages',
           ),
@@ -146,6 +143,127 @@ class _FeedScreenState extends State<FeedScreen> {
             return feedContent;
           }
         }),
+      ),
+    );
+  }
+
+  Widget _buildCommunity() {
+    return Scaffold(
+      appBar: AppBar(title: const Text('My Community')),
+      body: const Center(child: Text('My Community Page')),
+    );
+  }
+
+  Widget _buildExplore() {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Explore')),
+      body: const Center(child: Text('Explore Page')),
+    );
+  }
+
+  Widget _buildNotification() {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Notifications')),
+      body: const Center(child: Text('Notifications Page')),
+    );
+  }
+
+  Widget _buildSettings() {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Settings')),
+      body: Center(
+        child: ElevatedButton.icon(
+          onPressed: _logout,
+          icon: const Icon(Icons.logout),
+          label: const Text('Logout'),
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget page;
+
+    switch (_selectedIndex) {
+      case 0:
+        page = _buildFeed();
+        break;
+      case 1:
+        page = _buildCommunity();
+        break;
+      case 2:
+        page = _buildExplore();
+        break;
+      case 3:
+        page = _buildNotification();
+        break;
+      case 4:
+        page = _buildSettings();
+        break;
+      default:
+        page = _buildFeed();
+    }
+
+    return Scaffold(
+      body: page,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onNavTapped,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xFF2979FF),
+        unselectedItemColor: Colors.grey,
+        items: [
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_outlined),
+            label: 'Feed',
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.people_outline),
+            label: 'My community',
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.language_outlined),
+            label: 'Explore',
+          ),
+          BottomNavigationBarItem(
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const Icon(Icons.notifications_outlined),
+                Positioned(
+                  right: -2,
+                  top: -2,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                    child: const Text(
+                      '2',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            label: 'Notification',
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.settings_outlined),
+            label: 'Settings',
+          ),
+        ],
       ),
     );
   }

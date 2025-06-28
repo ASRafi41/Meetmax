@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meetmax/screens/create_post_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/post_provider.dart';
@@ -49,12 +50,22 @@ class _PostInputState extends State<PostInput> {
                       color: Colors.grey[100],
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: TextField(
-                      controller: _controller,
-                      decoration: const InputDecoration(
-                        hintText: "What's happening?",
-                        border: InputBorder.none,
-                        isDense: true,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const CreatePostScreen()),
+                        );
+                      },
+                      child: AbsorbPointer(
+                        child: TextField(
+                          controller: _controller,
+                          decoration: const InputDecoration(
+                            hintText: "What's happening?",
+                            border: InputBorder.none,
+                            isDense: true,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -66,7 +77,7 @@ class _PostInputState extends State<PostInput> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _ModalActionButton(
-                  icon: Icons.videocam_rounded,
+                  icon: Icons.videocam_outlined,
                   label: 'Live',
                   iconColor: Colors.black.withOpacity(0.4),
                   onTap: () {
@@ -76,7 +87,7 @@ class _PostInputState extends State<PostInput> {
                   },
                 ),
                 _ModalActionButton(
-                  icon: Icons.photo_camera_back_rounded,
+                  icon: Icons.photo_camera_back_outlined,
                   label: 'Photo',
                   iconColor: Colors.black.withOpacity(0.4),
                   onTap: () {
@@ -88,7 +99,7 @@ class _PostInputState extends State<PostInput> {
                   },
                 ),
                 _ModalActionButton(
-                  icon: Icons.emoji_emotions_rounded,
+                  icon: Icons.emoji_emotions_outlined,
                   label: 'Feeling',
                   iconColor: Colors.black.withOpacity(0.4),
                   onTap: () {
@@ -141,20 +152,21 @@ class _PostInputState extends State<PostInput> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2979FF),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    minimumSize: const Size(60, 32),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(6),
                     ),
                   ),
                   child: _isPosting
                       ? const SizedBox(
-                    width: 20,
-                    height: 20,
+                    width: 16,
+                    height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                   )
                       : const Text(
                     'Post',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],

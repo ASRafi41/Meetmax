@@ -61,7 +61,6 @@ class UserProvider extends ChangeNotifier {
     _currentUser = user;
     final sessionBox = await Hive.openBox(HiveBoxes.sessionBox);
 
-    // Make sure the user has a key before saving
     if (user.key != null) {
       await sessionBox.put('currentUserKey', user.key);
     }
@@ -69,11 +68,16 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Add this clear method
   Future<void> clearCurrentUser() async {
     _currentUser = null;
     final sessionBox = await Hive.openBox(HiveBoxes.sessionBox);
     await sessionBox.delete('currentUserKey');
+    notifyListeners();
+  }
+
+  Future<void> logout() async {
+    await clearCurrentUser();
+    // Add other cleanup logic if needed
     notifyListeners();
   }
 }

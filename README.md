@@ -104,9 +104,9 @@ lib/
 |---------------------------------------------------|----------------------------------------------------------|
 | ![Feed screen](assets/screenshots/FeedScreen.jpg) | ![Create post screen](assets/screenshots/CreatePost.jpg) |
 
-| Forget Password                                                                               |
-|-----------------------------------------------------------------------------------------------|
-| <img src="assets/screenshots/ForgetPassword.jpg" alt="Forget Password screen" width="300"/>   |
+| Forget Password                                                                             |
+|---------------------------------------------------------------------------------------------|
+| <img src="assets/screenshots/ForgetPassword.jpg" alt="Forget Password screen" width="500"/> |
 
 ---
 

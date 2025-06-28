@@ -106,7 +106,7 @@ lib/
 
 | Forget Password                                                                             |
 |---------------------------------------------------------------------------------------------|
-| <img src="assets/screenshots/ForgetPassword.jpg" alt="Forget Password screen" width="500"/> |
+| <img src="assets/screenshots/ForgetPassword.jpg" alt="Forget Password screen" width="400"/> |
 
 ---
 
@@ -117,3 +117,4 @@ lib/
 - Social‑login buttons (Google/Apple) are nonfunctional placeholders.
 - Images are loaded from placeholder URLs.  
 - ⚠️ Like, comment, and share features are not available in this demo.
+

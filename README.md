@@ -106,7 +106,7 @@ lib/
 
 | Forget Password                                                                             |
 |---------------------------------------------------------------------------------------------|
-| <img src="assets/screenshots/ForgetPassword.jpg" alt="Forget Password screen" width="500"/> |
+| <img src="assets/screenshots/ForgetPassword.jpg" alt="Forget Password screen" width="400"/> |
 
 ---
 

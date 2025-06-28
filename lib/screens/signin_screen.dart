@@ -37,13 +37,13 @@ class _SignInScreenState extends State<SignInScreen> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16.0),
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 16.0),
           child: Row(
             children: [
               Icon(Icons.location_on, color: Colors.blue),
-              const SizedBox(width: 6),
-              const Text(
+              SizedBox(width: 6),
+              Text(
                 'Meetmax',
                 style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
               ),
@@ -210,9 +210,9 @@ class _SignInScreenState extends State<SignInScreen> {
         final user = userBox.values.firstWhere((u) => u.email == email);
 
         final sessionBox = await Hive.openBox(HiveBoxes.sessionBox);
-        await sessionBox.put('currentUserKey', user.key); // ✅ Fix
+        await sessionBox.put('currentUserKey', user.key);
         if (_rememberMe) {
-          await sessionBox.put('email', email); // Optional
+          await sessionBox.put('email', email);
         }
 
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => FeedScreen()));

@@ -88,6 +88,8 @@ class _FeedScreenState extends State<FeedScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
         leading: Padding(
           padding: const EdgeInsets.only(left: 12.0),
           child: avatarUrl != null
@@ -95,18 +97,19 @@ class _FeedScreenState extends State<FeedScreen> {
               : const CircleAvatar(child: Icon(Icons.person)),
         ),
         title: SizedBox(
-          height: 36,
+          height: 40,
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
               isDense: true,
-              contentPadding: const EdgeInsets.symmetric(vertical: 8),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               prefixIcon: const Icon(Icons.search, size: 20),
-              hintText: 'Search',
+              hintText: 'Search for something here...',
+              hintStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
               filled: true,
               fillColor: Colors.grey[200],
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(6), // ← Rectangular-ish
                 borderSide: BorderSide.none,
               ),
             ),
@@ -114,10 +117,11 @@ class _FeedScreenState extends State<FeedScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.message),
+            icon: const Icon(Icons.chat_outlined, color: Colors.black87),
             onPressed: () {
               // Navigate to messages screen
             },
+            tooltip: 'Messages',
           ),
           const SizedBox(width: 8),
         ],

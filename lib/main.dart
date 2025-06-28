@@ -29,11 +29,11 @@ void main() async {
   Hive.registerAdapter(CommentAdapter());
 
   // Optional: Clear existing data for a clean demo experience
-  await Hive.deleteBoxFromDisk(HiveBoxes.userBox);
-  await Hive.deleteBoxFromDisk(HiveBoxes.storyBox);
-  await Hive.deleteBoxFromDisk(HiveBoxes.postBox);
-  await Hive.deleteBoxFromDisk(HiveBoxes.commentBox);
-  await Hive.deleteBoxFromDisk(HiveBoxes.sessionBox);
+  // await Hive.deleteBoxFromDisk(HiveBoxes.userBox);
+  // await Hive.deleteBoxFromDisk(HiveBoxes.storyBox);
+  // await Hive.deleteBoxFromDisk(HiveBoxes.postBox);
+  // await Hive.deleteBoxFromDisk(HiveBoxes.commentBox);
+  // await Hive.deleteBoxFromDisk(HiveBoxes.sessionBox);
 
   // Seed mock data
   await seedMockData();

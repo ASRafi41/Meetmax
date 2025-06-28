@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meetmax/screens/signIn_screen.dart';
-import '../mock_server/user_service.dart'; // Backend service
+import '../mock_server/user_service.dart';
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -10,7 +10,7 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
-  final UserService _userService = UserService(); // Hive backend service
+  final UserService _userService = UserService();
 
   bool _obscurePassword = true;
   String _gender = 'Male';
@@ -65,11 +65,7 @@ class _SignupScreenState extends State<SignUpScreen> {
                 ))
                     .toList(),
                 onChanged: (val) {
-                  if (val != null) {
-                    setState(() {
-                      _selectedLanguage = val;
-                    });
-                  }
+                  if (val != null) setState(() => _selectedLanguage = val);
                 },
                 icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black54),
               ),
@@ -102,14 +98,15 @@ class _SignupScreenState extends State<SignUpScreen> {
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      icon: const FaIcon(FontAwesomeIcons.google, color: Colors.black54, size: 16),
-                      label: const Text('Log in with Google', style: TextStyle(color: Colors.black87)),
+                      icon: const FaIcon(FontAwesomeIcons.google,
+                          color: Colors.black54, size: 16),
+                      label: const Text('Log in with Google',
+                          style: TextStyle(color: Colors.black87)),
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.black87,
                         backgroundColor: Colors.grey.shade200,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
                         elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
                         ),
@@ -119,14 +116,15 @@ class _SignupScreenState extends State<SignUpScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton.icon(
-                      icon: const FaIcon(FontAwesomeIcons.apple, color: Colors.black87, size: 18),
-                      label: const Text('Log in with Apple', style: TextStyle(color: Colors.black87)),
+                      icon: const FaIcon(FontAwesomeIcons.apple,
+                          color: Colors.black87, size: 18),
+                      label: const Text('Log in with Apple',
+                          style: TextStyle(color: Colors.black87)),
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.black87,
                         backgroundColor: Colors.grey.shade200,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
                         elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
                         ),
@@ -154,44 +152,35 @@ class _SignupScreenState extends State<SignUpScreen> {
               Form(
                 key: _formKey,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Email
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: _inputDecoration(
-                        hint: 'Your Email',
-                        icon: FontAwesomeIcons.at,
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                          return 'Enter a valid email address';
-                        }
+                      decoration:
+                      _inputDecoration(hint: 'Your Email', icon: FontAwesomeIcons.at),
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Please enter your email';
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                            .hasMatch(v)) return 'Enter a valid email';
                         return null;
                       },
                     ),
                     const SizedBox(height: 16),
 
+                    // Name
                     TextFormField(
                       controller: _nameController,
-                      decoration: _inputDecoration(
-                        hint: 'Your Name',
-                        icon: FontAwesomeIcons.user,
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your name';
-                        }
-                        if (value.length < 2) {
-                          return 'Name must be at least 2 characters';
-                        }
-                        return null;
-                      },
+                      decoration:
+                      _inputDecoration(hint: 'Your Name', icon: FontAwesomeIcons.user),
+                      validator: (v) => v == null || v.length < 2
+                          ? 'Name must be at least 2 characters'
+                          : null,
                     ),
                     const SizedBox(height: 16),
 
+                    // Password
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
@@ -199,42 +188,26 @@ class _SignupScreenState extends State<SignUpScreen> {
                         hint: 'Create Password',
                         icon: FontAwesomeIcons.lock,
                         suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                            color: Colors.grey,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
+                          icon: Icon(_obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility),
+                          color: Colors.grey,
+                          onPressed: () =>
+                              setState(() => _obscurePassword = !_obscurePassword),
                         ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a password';
-                        }
-                        if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
-                        }
-                        return null;
-                      },
+                      validator: (v) => v == null || v.length < 6
+                          ? 'Password must be at least 6 characters'
+                          : null,
                     ),
                     const SizedBox(height: 16),
 
+                    // Date of Birth
                     TextFormField(
                       controller: _dobController,
                       readOnly: true,
                       decoration: _inputDecoration(
-                        hint: 'Date of birth',
-                        icon: FontAwesomeIcons.calendar,
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please select your date of birth';
-                        }
-                        return null;
-                      },
+                          hint: 'Date of birth', icon: FontAwesomeIcons.calendar),
                       onTap: () async {
                         DateTime? picked = await showDatePicker(
                           context: context,
@@ -247,64 +220,73 @@ class _SignupScreenState extends State<SignUpScreen> {
                           '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
                         }
                       },
+                      validator: (v) =>
+                      v == null || v.isEmpty ? 'Please select DOB' : null,
                     ),
                     const SizedBox(height: 20),
 
-                    // Gender radio buttons
+                    // Gender selector
                     Container(
+                      height: 40,
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade400),
+                        color: Colors.white,
+                        border: Border.all(color: Colors.grey.shade300),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         children: [
-                          Expanded(
-                            child: RadioListTile<String>(
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                              value: 'Male',
-                              groupValue: _gender,
-                              onChanged: (value) => setState(() => _gender = value!),
-                              title: Row(
+                          // 1) Static bold black male symbol
+                          const Flexible(
+                            fit: FlexFit.tight,
+                            flex: 1,
+                            child: Center(
+                              child: Icon(
+                                FontAwesomeIcons.mars,
+                                size: 18,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+
+                          // 2) Male option
+                          Flexible(
+                            fit: FlexFit.tight,
+                            flex: 2,
+                            child: InkWell(
+                              onTap: () => setState(() => _gender = 'Male'),
+                              child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue.shade100,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const FaIcon(FontAwesomeIcons.mars, size: 18, color: Colors.blue),
+                                  Radio<String>(
+                                    value: 'Male',
+                                    groupValue: _gender,
+                                    onChanged: (v) => setState(() => _gender = v!),
+                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                   ),
-                                  const SizedBox(width: 8),
                                   const Text('Male'),
                                 ],
                               ),
-                              dense: true,
                             ),
                           ),
-                          Container(height: 30, width: 1, color: Colors.grey.shade400),
-                          Expanded(
-                            child: RadioListTile<String>(
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                              value: 'Female',
-                              groupValue: _gender,
-                              onChanged: (value) => setState(() => _gender = value!),
-                              title: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+
+                          // 3) Female option
+                          Flexible(
+                            fit: FlexFit.tight,
+                            flex: 2,
+                            child: InkWell(
+                              onTap: () => setState(() => _gender = 'Female'),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.pink.shade100,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const FaIcon(FontAwesomeIcons.venus, size: 18, color: Colors.pink),
+                                  Radio<String>(
+                                    value: 'Female',
+                                    groupValue: _gender,
+                                    onChanged: (v) => setState(() => _gender = v!),
+                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                   ),
-                                  const SizedBox(width: 8),
                                   const Text('Female'),
                                 ],
                               ),
-                              dense: true,
                             ),
                           ),
                         ],
@@ -312,7 +294,7 @@ class _SignupScreenState extends State<SignUpScreen> {
                     ),
                     const SizedBox(height: 28),
 
-                    // Sign Up Button
+                    // Sign Up button
                     SizedBox(
                       height: 50,
                       child: ElevatedButton(
@@ -326,31 +308,32 @@ class _SignupScreenState extends State<SignUpScreen> {
                         child: const Text(
                           'Sign Up',
                           style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white),
                         ),
                       ),
                     ),
                     const SizedBox(height: 20),
 
-                    // Sign In Prompt
+                    // Sign In prompt
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('Already have an account?', style: TextStyle(color: Colors.black54)),
+                        const Text('Already have an account?',
+                            style: TextStyle(color: Colors.black54)),
                         TextButton(
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => SignInScreen()),
-                            );
-                          },
-                          child: const Text('Sign In', style: TextStyle(color: Color(0xFF2979FF))),
-                        )
+                          onPressed: () => Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => SignInScreen()),
+                          ),
+                          child: const Text('Sign In',
+                              style:
+                              TextStyle(color: Color(0xFF2979FF))),
+                        ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -368,9 +351,7 @@ class _SignupScreenState extends State<SignUpScreen> {
       final password = _passwordController.text.trim();
       final dob = _dobController.text.trim();
 
-      final emailExists = await _userService.isEmailAlreadyRegistered(email);
-
-      if (emailExists) {
+      if (await _userService.isEmailAlreadyRegistered(email)) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('This email is already registered.'),
@@ -381,29 +362,26 @@ class _SignupScreenState extends State<SignUpScreen> {
       }
 
       await _userService.registerUser(
-        name: name,
-        email: email,
-        password: password,
-        birthdate: dob,
-      );
+          name: name, email: email, password: password, birthdate: dob);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Registration successful! Redirecting to Sign In...'),
-          backgroundColor: Colors.green,
-        ),
+            content:
+            Text('Registration successful! Redirecting to Sign In...'),
+            backgroundColor: Colors.green),
       );
-
       Future.delayed(const Duration(seconds: 1), () {
         Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => SignInScreen()),
-        );
+            context, MaterialPageRoute(builder: (_) => SignInScreen()));
       });
     }
   }
 
-  InputDecoration _inputDecoration({required String hint, required IconData icon, Widget? suffixIcon}) {
+  InputDecoration _inputDecoration({
+    required String hint,
+    required IconData icon,
+    Widget? suffixIcon,
+  }) {
     return InputDecoration(
       hintText: hint,
       contentPadding: const EdgeInsets.symmetric(vertical: 16),
@@ -422,13 +400,13 @@ class _SignupScreenState extends State<SignUpScreen> {
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: Colors.grey),
       ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.red),
-      ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: Colors.blue),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.red),
       ),
     );
   }

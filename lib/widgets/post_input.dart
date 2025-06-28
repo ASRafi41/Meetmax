@@ -27,35 +27,80 @@ class _PostInputState extends State<PostInput> {
 
     return Card(
       margin: const EdgeInsets.all(12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
                 CircleAvatar(
-                  radius: 20,
+                  radius: 18,
                   backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
                   child: avatarUrl == null ? const Icon(Icons.person) : null,
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: const InputDecoration(
-                      hintText: "What's happening?",
-                      border: InputBorder.none,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: TextField(
+                      controller: _controller,
+                      decoration: const InputDecoration(
+                        hintText: "What's happening?",
+                        border: InputBorder.none,
+                        isDense: true,
+                      ),
                     ),
                   ),
                 ),
-                _isPosting
-                    ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-                    : TextButton(
-                  onPressed: () async {
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _ModalActionButton(
+                  icon: Icons.videocam_rounded,
+                  label: 'Live',
+                  iconColor: Colors.black.withOpacity(0.4),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Live feature not implemented')),
+                    );
+                  },
+                ),
+                _ModalActionButton(
+                  icon: Icons.photo_camera_back_rounded,
+                  label: 'Photo',
+                  iconColor: Colors.black.withOpacity(0.4),
+                  onTap: () {
+                    setState(() {
+                      final sig = DateTime.now().millisecondsSinceEpoch % 1000;
+                      _selectedImageUrls
+                          .add('https://source.unsplash.com/random/200x200?sig=$sig');
+                    });
+                  },
+                ),
+                _ModalActionButton(
+                  icon: Icons.emoji_emotions_rounded,
+                  label: 'Feeling',
+                  iconColor: Colors.black.withOpacity(0.4),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Feeling feature not implemented')),
+                    );
+                  },
+                ),
+                ElevatedButton(
+                  onPressed: _isPosting
+                      ? null
+                      : () async {
                     final text = _controller.text.trim();
                     if ((text.isEmpty && _selectedImageUrls.isEmpty) || currentUser == null) {
                       return;
@@ -64,19 +109,18 @@ class _PostInputState extends State<PostInput> {
                       _isPosting = true;
                     });
                     try {
-                      // Use currentUser.keyId instead of currentUser.key
                       final userKey = currentUser.key;
-                      if (userKey == null) return; // Add null check
+                      if (userKey == null) return;
 
                       final newPost = Post(
-                        userId: userKey, // Use keyId here
+                        userId: userKey,
                         time: DateTime.now(),
                         content: text,
                         imageUrls: _selectedImageUrls,
                         likeCount: 0,
                         commentCount: 0,
                         shareCount: 0,
-                        likedUserIds: [], // Initialize with empty list
+                        likedUserIds: [],
                       );
 
                       await postProv.addPost(newPost);
@@ -85,7 +129,7 @@ class _PostInputState extends State<PostInput> {
                     } catch (e) {
                       print('Error creating post: $e');
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Failed to create post')),
+                        const SnackBar(content: Text('Failed to create post')),
                       );
                     } finally {
                       if (mounted) {
@@ -95,42 +139,23 @@ class _PostInputState extends State<PostInput> {
                       }
                     }
                   },
-                  child: const Text('Post'),
-                ),
-              ],
-            ),
-            const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                TextButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Live feature not implemented')),
-                    );
-                  },
-                  icon: const Icon(Icons.videocam, color: Colors.red),
-                  label: const Text('Live'),
-                ),
-                TextButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      final sig = DateTime.now().millisecondsSinceEpoch % 1000;
-                      _selectedImageUrls
-                          .add('https://source.unsplash.com/random/200x200?sig=$sig');
-                    });
-                  },
-                  icon: const Icon(Icons.photo_library, color: Colors.green),
-                  label: const Text('Photo'),
-                ),
-                TextButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Feeling feature not implemented')),
-                    );
-                  },
-                  icon: const Icon(Icons.emoji_emotions, color: Colors.orange),
-                  label: const Text('Feeling'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2979FF),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: _isPosting
+                      ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                      : const Text(
+                    'Post',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  ),
                 ),
               ],
             ),
@@ -166,7 +191,7 @@ class _PostInputState extends State<PostInput> {
                               });
                             },
                             child: Container(
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 color: Colors.black54,
                                 shape: BoxShape.circle,
                               ),
@@ -181,6 +206,34 @@ class _PostInputState extends State<PostInput> {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ModalActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color iconColor;
+  final VoidCallback onTap;
+
+  const _ModalActionButton({
+    required this.icon,
+    required this.label,
+    required this.iconColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(icon, color: iconColor.withOpacity(0.7), size: 20),
+          const SizedBox(width: 4),
+          Text(label, style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.6))),
+        ],
       ),
     );
   }

@@ -94,7 +94,6 @@ lib/
     - Hive for local storage of users, sessions, stories, posts, comments
 
 ---
-
 ## 🖼 Screenshots
 
 | Sign Up                                          | Sign In                                          |
@@ -105,9 +104,9 @@ lib/
 |---------------------------------------------------|----------------------------------------------------------|
 | ![Feed screen](assets/screenshots/FeedScreen.jpg) | ![Create post screen](assets/screenshots/CreatePost.jpg) |
 
-| Forget Password                                                   |
-|-------------------------------------------------------------------|
-| ![Forget Password screen](assets/screenshots/ForgetPassword.jpg)  |
+| Forget Password                                                                               |
+|-----------------------------------------------------------------------------------------------|
+| <img src="assets/screenshots/ForgetPassword.jpg" alt="Forget Password screen" width="300"/>   |
 
 ---
 

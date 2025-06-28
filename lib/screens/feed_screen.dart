@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:meetmax/mock_server/hive_boxes.dart';
 import 'package:provider/provider.dart';
 import '../providers/story_provider.dart';
 import '../providers/post_provider.dart';
@@ -41,20 +39,10 @@ class _FeedScreenState extends State<FeedScreen> {
 
   Future<void> _logout() async {
     final userProv = Provider.of<UserProvider>(context, listen: false);
-
-    // Clear user session
-    final sessionBox = await Hive.openBox(HiveBoxes.sessionBox);
-    await sessionBox.delete('email');
-
-    // Optionally clear other session data:
-    // await sessionBox.clear(); // If you want to clear everything
-
     await userProv.logout();
-
-    // Navigate to login or splash screen
+    // Navigate to login or splash screen after logout
     Navigator.of(context).pushReplacementNamed('/login');
   }
-
 
   Widget _buildFeed() {
     final storyProv = Provider.of<StoryProvider>(context);
